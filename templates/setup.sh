@@ -13,6 +13,13 @@ then
   chmod 640 /etc/passwd-s3fs
 fi
 
+counter=0
+while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
+  counter=$((counter+1));
+  if [ $counter -eq 60 ]; then break; fi;
+  sleep 1;
+done
+
 if [[ -f /dumps/dump.sql || -f /dumps/gfb.sql ]];
 then
   sql="$(cat /root/schema.sql)"
