@@ -15,14 +15,26 @@ then
   chmod 640 /etc/passwd-s3fs
 fi
 
-counter=0
-while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
-  counter=$((counter+1));
-  if [ $counter -eq 60 ]; then break; fi;
-  sleep 1;
-done
+counter=0;
+if [[ -n $MYSQL_PORT_3306_TCP_ADDR ]];
+then
+  while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
+    counter=$((counter+1));
+    if [ $counter -eq 60 ]; then break; fi;
+    sleep 1;
+  done
+fi
 
-if [[ -f /dumps/dump.sql || -f /dumps/gfb.sql ]];
+path_to_sql_dump="";
+if [[ -f /dumps/dump.sql ]];
+then
+  path_to_sql_dump="/dumps/dump.sql";
+elif [[ -f /dumps/gfb.sql ]];
+then
+  path_to_sql_dump="/dumps/gfb.sql";
+fi
+
+if [[ -n $path_to_sql_dump ]];
 then
   sql="$(cat /root/schema.sql)"
   echo $(eval echo \"$sql\") > /root/.temp.sql
@@ -30,10 +42,10 @@ then
 
   rm /root/.temp.sql
 
-  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < /dumps/dump.sql
+  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $path_to_sql_dump
 fi
 
-rsyslogd
-cron
-touch /var/log/cron.log
-tail -F /var/log/syslog /var/log/cron.log
+sudo rsyslogd
+sudo cron
+sudo touch /var/log/cron.log
+sudo tail -F /var/log/syslog /var/log/cron.log
