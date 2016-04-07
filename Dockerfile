@@ -30,6 +30,7 @@ RUN apt-get install -y libpcre3 libpcre3-dev
 RUN apt-get install -y freetds-dev
 # RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y software-properties-common
+RUN apt-get -y install postfix
 RUN apt-get -y install rsyslog
 RUN apt-get -y install mysql-client
 

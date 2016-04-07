@@ -5,6 +5,8 @@
 
 # DUMP_FILE="/dumps/dump.sql"
 
+set -e
+
 if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
 then
   echo $AWS_S3 >> ~/.passwd-s3fs && cp ~/.passwd-s3fs /etc/passwd-s3fs
