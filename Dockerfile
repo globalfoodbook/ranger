@@ -44,18 +44,18 @@ RUN cd s3fs-fuse-master/ && ./autogen.sh && ./configure --prefix=/usr --with-ope
 ADD templates/schema.sql /root/schema.sql
 ADD templates/backup-db.sh /root/backup-db.sh
 ADD templates/crontab /etc/crontab
-ADD templates/setup.sh /usr/bin/setup.sh
-ADD templates/setup.sh /root/setup.sh
+ADD templates/entrypoint.sh /usr/bin/entrypoint.sh
+ADD templates/entrypoint.sh /root/entrypoint.sh
 
 RUN touch /var/log/cron.log
 
 RUN chmod +x /root/backup-db.sh
-RUN chmod +x /usr/bin/setup.sh
-RUN chmod +x /root/setup.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+RUN chmod +x /root/entrypoint.sh
 
 # ADD templates/backup-cron /etc/cron.d/backup-cron
 # RUN chmod 0644 /etc/cron.d/backup-cron
 # RUN cron
 
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
-CMD ["/usr/bin/setup.sh"]
+CMD ["/usr/bin/entrypoint.sh"]
