@@ -1,11 +1,10 @@
 #!/bin/bash
 # export MYSQL_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
-# NOW=$(date +"%Y-%m-%d-%H%M")
-
-# DUMP_FILE="/dumps/dump.sql"
+NOW=$(date +"%Y-%m-%d-%H%M")
 
 set -e
+set -x
 
 if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
 then
@@ -15,7 +14,7 @@ then
   chmod 640 /etc/passwd-s3fs
 fi
 
-if [[ -n $MYSQL_PORT_3306_TCP_ADDR ]];
+if [[ $MYSQL_PORT_3306_TCP_ADDR ]];
 then
   counter=0;
   while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
@@ -34,7 +33,7 @@ then
     path_to_sql_dump="/dumps/gfb.sql";
   fi
 
-  if [[ -n $path_to_sql_dump ]];
+  if [[ $path_to_sql_dump ]];
   then
     sql="$(cat /root/schema.sql)"
     echo $(eval echo \"$sql\") > /root/.temp.sql
@@ -43,6 +42,7 @@ then
     rm /root/.temp.sql
 
     mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $path_to_sql_dump
+    sudo mv $path_to_sql_dump /dumps/"used_dump_on_$NOW.sql"
   fi
 fi
 
