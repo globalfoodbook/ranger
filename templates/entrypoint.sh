@@ -19,8 +19,8 @@ then
   counter=0;
   while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
     counter=$((counter+1));
-    if [ $counter -eq 60 ]; then break; fi;
-    sleep 1;
+    if [ $counter -eq 6 ]; then break; fi;
+    sleep 10;
   done
 
 
