@@ -47,3 +47,7 @@ IP=`docker inspect ranger | grep -w "IPAddress" | awk '{ print $2 }' | head -n 1
 HOST_IP=`/sbin/ifconfig eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
 
 DOCKER_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts` # from inside a docker container
+
+# Contributors
+
+* [Ikenna N. Okpala](http://ikennaokpala.com)
