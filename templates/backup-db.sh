@@ -1,7 +1,10 @@
 #!/bin/bash
 # export MYSQL_PORT_3306_TCP_ADDR=`awk 'NR==1 {print $1}' /etc/hosts`
 
+source $HOME/.bashrc
+
 set -e
+set -x
 
 MOUNT=/mnt/s3b/
 BACKUP=/root/backups
