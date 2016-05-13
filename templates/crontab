@@ -1,1 +1,2 @@
-0 12 * * * root /root/backup-db.sh >> /var/log/cron.log 2>&1
+SHELL=/bin/bash
+* */12 * * * root /root/backup-db.sh >> /var/log/cron.log 2>&1

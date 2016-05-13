@@ -1,24 +1,25 @@
 #!/bin/bash
 # export MYSQL_PORT_3306_TCP_ADDR=`awk 'NR==1 {print $1}' /etc/hosts`
 
-source $HOME/.bashrc
-
 set -e
-set -x
+# set -x #use then debuging
 
-MOUNT=/mnt/s3b/
-BACKUP=/root/backups
-mkdir -p $BACKUP
+source /root/.env
+
+if [ ! -d "$BACKUP" ]; then
+  /bin/mkdir -p $BACKUP
+fi
+
 NOW=$(date +"%Y-%m-%d-%H%M")
 DB_FILE="$MYSQL_ENV_MYSQL_DATABASE.$NOW.sql"
 
-/usr/bin/s3fs gfb-assets $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
+/usr/bin/s3fs $S3_BUCKET $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
 
-mysqldump -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE > /tmp/$DB_FILE
+/usr/bin/mysqldump -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE > $BACKUP/$DB_FILE
 
-tar -czvf $BACKUP/"$DB_FILE.tar.gz" -P /tmp/$DB_FILE
+/bin/tar -czvf $BACKUP/"$DB_FILE.tar.gz" -P $BACKUP/$DB_FILE
 
-cp $BACKUP/"$DB_FILE.tar.gz" $MOUNT/data/
-# rm $BACKUP/"$DB_FILE.tar.gz"
+/bin/cp $BACKUP/"$DB_FILE.tar.gz" $MOUNT/data/
+# /bin/rm $BACKUP/"$DB_FILE.tar.gz" $BACKUP/"$DB_FILE"
 
 # MYSQL_PORT MYSQL_PORT_3306_TCP MYSQL_PORT_3306_TCP_ADDR MYSQL_PORT_3306_TCP_PORT MYSQL_PORT_3306_TCP_PROTO MYSQL_NAME MYSQL_ENV_MYSQL_ROOT_PASSWORD MYSQL_ENV_MYSQL_USER MYSQL_ENV_MYSQL_PASSWORD MYSQL_ENV_MYSQL_DATABASE MYSQL_ENV_AWS_S3 MYSQL_ENV_MYSQL_MAJOR MYSQL_ENV_MYSQL_VERSION REDIS_PORT REDIS_PORT_6379_TCP REDIS_PORT_6379_TCP_ADDR REDIS_PORT_6379_TCP_PORT REDIS_PORT_6379_TCP_PROTO REDIS_NAME REDIS_ENV_GOSU_VERSION REDIS_ENV_REDIS_VERSION REDIS_ENV_REDIS_DOWNLOAD_URL

@@ -8,10 +8,9 @@ RUN locale-gen
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.en
-ENV LC_ALL en_US.UTF-8
-ENV PS_NGX_EXTRA_FLAGS --with-cc=/usr/bin/gcc --with-ld-opt=-static-libstdc++
+ENV S3_BUCKET gfb-assets
+ENV MOUNT /mnt/s3b/
+ENV BACKUP /dumps
 
 # Add all base dependencies
 RUN apt-get update -y
@@ -37,7 +36,7 @@ RUN apt-get -y install mysql-client
 
 RUN mkdir -p /mnt/s3b
 
-WORKDIR ~/
+WORKDIR /root
 
 RUN /bin/bash -l -c "wget https://github.com/s3fs-fuse/s3fs-fuse/archive/master.zip"
 RUN unzip master.zip

@@ -2,9 +2,10 @@
 # export MYSQL_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
 NOW=$(date +"%Y-%m-%d-%H%M")
+env > /root/.env
 
 set -e
-set -x
+# set -x #use then debuging
 
 if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
 then
