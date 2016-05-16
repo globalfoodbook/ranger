@@ -43,6 +43,8 @@ RUN unzip master.zip
 
 RUN cd s3fs-fuse-master/ && ./autogen.sh && ./configure --prefix=/usr --with-openssl && make && make install
 
+RUN rm -rf master.zip s3fs-fuse-master/
+
 ADD templates/schema.sql /root/schema.sql
 ADD templates/backup-db.sh /root/backup-db.sh
 ADD templates/crontab /etc/crontab
