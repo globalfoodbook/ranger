@@ -1,1 +1,0 @@
-1   15    cron.daily     /bin/bash /root/backup-db.sh

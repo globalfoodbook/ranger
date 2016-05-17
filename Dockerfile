@@ -27,11 +27,9 @@ RUN apt-get install -y libxslt-dev
 RUN apt-get install -y libxml2-dev
 RUN apt-get install -y libpcre3 libpcre3-dev
 RUN apt-get install -y freetds-dev
-# RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y software-properties-common
 RUN apt-get -y install postfix
 RUN apt-get -y install rsyslog
-# RUN apt-get -y install anacron
 RUN apt-get -y install mysql-client
 
 RUN mkdir -p /mnt/s3b
@@ -48,7 +46,6 @@ RUN rm -rf master.zip s3fs-fuse-master/
 ADD templates/schema.sql /root/schema.sql
 ADD templates/backup-db.sh /root/backup-db.sh
 ADD templates/crontab /etc/crontab
-# ADD templates/anacrontab /etc/anacrontab
 ADD templates/entrypoint.sh /usr/bin/entrypoint.sh
 ADD templates/entrypoint.sh /root/entrypoint.sh
 
