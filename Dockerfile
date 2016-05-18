@@ -31,6 +31,10 @@ RUN apt-get install -y software-properties-common
 RUN apt-get -y install postfix
 RUN apt-get -y install rsyslog
 RUN apt-get -y install mysql-client
+RUN apt-get install -y python-setuptools python-dev
+RUN easy_install pip
+RUN /usr/bin/yes | pip install --upgrade virtualenv
+RUN /usr/bin/yes | pip install awscli --ignore-installed six
 
 RUN mkdir -p /mnt/s3b
 
