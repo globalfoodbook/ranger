@@ -1,2 +1,0 @@
-SHELL=/bin/bash
-0 12 * * * /root/backup-db.sh >> /var/log/cron.log 2>&1
