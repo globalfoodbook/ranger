@@ -1,6 +1,9 @@
 #!/bin/bash
 # export MYSQL_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
+set -e
+# set -x #use then debuging
+
 initiate_db(){
   sql="$(cat /root/schema.sql)"
   echo $(eval echo \"$sql\") > /root/.temp.sql
@@ -16,8 +19,6 @@ restore_db() {
 NOW=$(date +"%Y-%m-%d-%H%M")
 env > /root/.env
 
-set -e
-# set -x #use then debuging
 
 if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
 then
