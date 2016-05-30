@@ -44,6 +44,17 @@ then
 
     mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $path_to_sql_dump
     sudo mv $path_to_sql_dump /dumps/"used_dump_on_$NOW.sql"
+  else
+    /usr/bin/s3fs $S3_BUCKET $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
+
+    recovery_dir="/dumps/recover-$(date +"%Y-%m-%d-%H%M")"
+    mkdir -p $recovery_dir
+    latest_dump_path=`find "/mnt/s3b/data" -type f|sort -r|head -n1`
+    dump_file=`basename $latest_dump_path .tar.gz`
+
+    tar -xzvf $latest_dump_path -C $recovery_dir
+
+    mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $recovery_dir$BACKUP/$dump_file
   fi
 fi
 
