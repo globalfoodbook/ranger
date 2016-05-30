@@ -1,6 +1,18 @@
 #!/bin/bash
 # export MYSQL_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
+initiate_db(){
+  sql="$(cat /root/schema.sql)"
+  echo $(eval echo \"$sql\") > /root/.temp.sql
+  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD < /root/.temp.sql
+
+  rm /root/.temp.sql
+}
+
+restore_db() {
+  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $1
+}
+
 NOW=$(date +"%Y-%m-%d-%H%M")
 env > /root/.env
 
@@ -36,15 +48,14 @@ then
 
   if [[ $path_to_sql_dump ]];
   then
-    sql="$(cat /root/schema.sql)"
-    echo $(eval echo \"$sql\") > /root/.temp.sql
-    mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD < /root/.temp.sql
+    initiate_db
+    restore_db $path_to_sql_dump
 
-    rm /root/.temp.sql
-
-    mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $path_to_sql_dump
     sudo mv $path_to_sql_dump $BACKUP/"used_dump_on_$NOW.sql"
-  elif [[ subdirectories -le 1 ]]
+  elif [[ subdirectories -le 1 ]];
+  then
+    initiate_db
+
     /usr/bin/s3fs $S3_BUCKET $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
 
     recovery_dir="$BACKUP/recover-$NOW"
@@ -54,7 +65,7 @@ then
 
     tar -xzvf $latest_dump_path -C $recovery_dir
 
-    mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $recovery_dir$BACKUP/$dump_file
+    restore_db "$recovery_dir$BACKUP/$dump_file"
   fi
 fi
 
