@@ -24,14 +24,14 @@ then
     sleep 10;
   done
 
-
+  subdirectories=`find $BACKUP -maxdepth 1 -type d | wc -l`
   path_to_sql_dump="";
-  if [[ -f /dumps/dump.sql ]];
+  if [[ -f $BACKUP/dump.sql ]];
   then
-    path_to_sql_dump="/dumps/dump.sql";
-  elif [[ -f /dumps/gfb.sql ]];
+    path_to_sql_dump="$BACKUP/dump.sql";
+  elif [[ -f $BACKUP/gfb.sql ]];
   then
-    path_to_sql_dump="/dumps/gfb.sql";
+    path_to_sql_dump="$BACKUP/gfb.sql";
   fi
 
   if [[ $path_to_sql_dump ]];
@@ -43,11 +43,11 @@ then
     rm /root/.temp.sql
 
     mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $path_to_sql_dump
-    sudo mv $path_to_sql_dump /dumps/"used_dump_on_$NOW.sql"
-  else
+    sudo mv $path_to_sql_dump $BACKUP/"used_dump_on_$NOW.sql"
+  elif [[ subdirectories -le 1 ]]
     /usr/bin/s3fs $S3_BUCKET $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
 
-    recovery_dir="/dumps/recover-$(date +"%Y-%m-%d-%H%M")"
+    recovery_dir="$BACKUP/recover-$NOW"
     mkdir -p $recovery_dir
     latest_dump_path=`find "/mnt/s3b/data" -type f|sort -r|head -n1`
     dump_file=`basename $latest_dump_path .tar.gz`
