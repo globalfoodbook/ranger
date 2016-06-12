@@ -1,5 +1,5 @@
 #!/bin/bash
-# export MYSQL_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
+# export MARIADB_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
 set -e
 # set -x #use then debuging
@@ -7,13 +7,13 @@ set -e
 initiate_db(){
   sql="$(cat /root/schema.sql)"
   echo $(eval echo \"$sql\") > /root/.temp.sql
-  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD < /root/.temp.sql
+  mysql -h$MARIADB_PORT_3306_TCP_ADDR -uroot -p$MARIADB_ENV_MYSQL_ROOT_PASSWORD < /root/.temp.sql
 
   rm /root/.temp.sql
 }
 
 restore_db() {
-  mysql -h$MYSQL_PORT_3306_TCP_ADDR -uroot -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD $MYSQL_ENV_MYSQL_DATABASE < $1
+  mysql -h$MARIADB_PORT_3306_TCP_ADDR -uroot -p$MARIADB_ENV_MYSQL_ROOT_PASSWORD $MARIADB_ENV_MARIADB_DATABASE < $1
 }
 
 NOW=$(date +"%Y-%m-%d-%H%M")
@@ -28,10 +28,10 @@ then
   chmod 640 /etc/passwd-s3fs
 fi
 
-if [[ $MYSQL_PORT_3306_TCP_ADDR ]];
+if [[ $MARIADB_PORT_3306_TCP_ADDR ]];
 then
   counter=0;
-  while ! nc -vz $MYSQL_PORT_3306_TCP_ADDR $MYSQL_PORT_3306_TCP_PORT; do
+  while ! nc -vz $MARIADB_PORT_3306_TCP_ADDR $MARIADB_PORT_3306_TCP_PORT; do
     counter=$((counter+1));
     if [ $counter -eq 6 ]; then break; fi;
     sleep 10;
