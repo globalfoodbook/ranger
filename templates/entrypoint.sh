@@ -1,5 +1,6 @@
 #!/bin/bash
-# export MARIADB_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
+export MARIADB_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
+export IP_SUBNET_WILDCARD=${MARIADB_HOST_IP/%?/}%
 
 set -e
 # set -x #use then debuging
