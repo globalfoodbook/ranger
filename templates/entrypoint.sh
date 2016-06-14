@@ -30,6 +30,7 @@ fi
 
 if [[ $MARIADB_PORT_3306_TCP_ADDR ]];
 then
+  export IP_SUBNET_WILDCARD=${MARIADB_PORT_3306_TCP_ADDR/%?/}%;  
   counter=0;
   while ! nc -vz $MARIADB_PORT_3306_TCP_ADDR $MARIADB_PORT_3306_TCP_PORT; do
     counter=$((counter+1));
