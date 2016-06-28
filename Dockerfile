@@ -9,7 +9,9 @@ RUN locale-gen
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV S3_BUCKET gfb-assets
-ENV MOUNT /mnt/s3b/
+ENV GCS_BUCKET gfb-assets.globalfoodbook.net
+ENV GCS_AUTH_FILE /etc/gcs-auth.txt
+ENV MOUNT /mnt/cloud-storage-bucket
 ENV BACKUP /dumps
 
 # Add all base dependencies
@@ -31,28 +33,32 @@ RUN apt-get install -y software-properties-common
 RUN apt-get -y install postfix
 RUN apt-get -y install rsyslog
 RUN apt-get -y install mysql-client
+# RUN apt-get -y install ruby ruby-dev
+# RUN gem install fpm
 # RUN apt-get install -y python-setuptools python-dev
 # RUN easy_install pip
 # RUN /usr/bin/yes | pip install --upgrade virtualenv
 # RUN /usr/bin/yes | pip install awscli --ignore-installed six
 
-RUN mkdir -p /mnt/s3b
+RUN mkdir -p $MOUNT
 
 WORKDIR /root
 
 RUN /bin/bash -l -c "wget https://github.com/s3fs-fuse/s3fs-fuse/archive/master.zip"
 RUN unzip master.zip
 
-RUN cd s3fs-fuse-master/ && ./autogen.sh && ./configure --prefix=/usr --with-openssl && make && make install
+RUN cd /root/s3fs-fuse-master/ && ./autogen.sh && ./configure --prefix=/usr/ --with-openssl && make && make install
 
 RUN rm -rf master.zip s3fs-fuse-master/
 
 ADD templates/schema.sql /root/schema.sql
 ADD templates/backup-db.sh /root/backup-db.sh
 ADD templates/entrypoint.sh /usr/bin/entrypoint.sh
+ADD templates/fxn.sh /usr/bin/fxn.sh
 
 RUN chmod +x /root/backup-db.sh
 RUN chmod +x /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/fxn.sh
 
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/usr/bin/entrypoint.sh"]

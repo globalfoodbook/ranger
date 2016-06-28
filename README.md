@@ -15,8 +15,15 @@ This will doesn't expose any port.
 
 To run the server on the host machine, run the following command:
 
+#### For Amazon S3
+
 ```bash
 $ docker run --name=ranger --link=mysql:mysql --env AWS_S3=${AWS_S3} --detach --volume=/home/core/gfb/conductor/vagrant/scripts/dumps/:/dumps/ --cap-add mknod --cap-add sys_admin --device=/dev/fuse --privileged ranger
+```
+#### For Google Cloud Storage
+
+```bash
+$ docker run --name=ranger --link=mysql:mysql --env GCS_AUTH=${GCS_AUTH} --detach --volume=/home/core/gfb/conductor/vagrant/scripts/dumps/:/dumps/ --cap-add mknod --cap-add sys_admin --device=/dev/fuse --privileged ranger
 ```
 
 # NB:

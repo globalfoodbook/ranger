@@ -1,36 +1,40 @@
 #!/bin/bash
 # export MARIADB_HOST_IP=`awk 'NR==1 {print $1}' /etc/hosts`
 
-set -e
+# set -e
+source /usr/bin/fxn.sh
 # set -x #use then debuging
 
-initiate_db(){
-  sql="$(cat /root/schema.sql)"
-  echo $(eval echo \"$sql\") > /root/.temp.sql
-  mysql -h$MARIADB_PORT_3306_TCP_ADDR -uroot -p$MARIADB_ENV_MYSQL_ROOT_PASSWORD < /root/.temp.sql
-
-  rm /root/.temp.sql
-}
-
-restore_db() {
-  mysql -h$MARIADB_PORT_3306_TCP_ADDR -uroot -p$MARIADB_ENV_MYSQL_ROOT_PASSWORD $MARIADB_ENV_MARIADB_DATABASE < $1
-}
+if [[ ! -d $MOUNT ]]; then
+  mkdir -p $MOUNT
+fi
 
 NOW=$(date +"%Y-%m-%d-%H%M")
 env > /root/.env
 
-
-if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
+if [[ $AWS_S3 ]];
 then
-  echo $AWS_S3 >> ~/.passwd-s3fs && cp ~/.passwd-s3fs /etc/passwd-s3fs
+  if [[ ! -f ~/.passwd-s3fs || ! -f /etc/passwd-s3fs ]];
+  then
+    echo $AWS_S3 >> ~/.passwd-s3fs && cp ~/.passwd-s3fs /etc/passwd-s3fs
 
-  chmod 600 ~/.passwd-s3fs
-  chmod 640 /etc/passwd-s3fs
+    chmod 600 ~/.passwd-s3fs
+    chmod 640 /etc/passwd-s3fs
+  fi
+elif [[ $GCS_AUTH ]];
+then
+  if [[ ! -f $GCS_AUTH_FILE ]];
+  then
+    # echo $GCS_AUTH >> ~/.gcs-auth.txt && cp ~/.gcs-auth.txt $GCS_AUTH_FILE
+    echo $GCS_AUTH >> $GCS_AUTH_FILE
+
+    chmod 600 $GCS_AUTH_FILE
+  fi
 fi
 
 if [[ $MARIADB_PORT_3306_TCP_ADDR ]];
 then
-  export IP_SUBNET_WILDCARD=${MARIADB_PORT_3306_TCP_ADDR/%?/}%;  
+  export IP_SUBNET_WILDCARD=${MARIADB_PORT_3306_TCP_ADDR/%?/}%;
   counter=0;
   while ! nc -vz $MARIADB_PORT_3306_TCP_ADDR $MARIADB_PORT_3306_TCP_PORT; do
     counter=$((counter+1));
@@ -54,15 +58,14 @@ then
     restore_db $path_to_sql_dump
 
     sudo mv $path_to_sql_dump $BACKUP/"used_dump_on_$NOW.sql"
-  elif [[ subdirectories -le 1 ]];
+  elif [[ subdirectories -le 1 ]] && [[ $GCS_AUTH || $AWS_S3 ]];
   then
     initiate_db
-
-    /usr/bin/s3fs $S3_BUCKET $MOUNT -ouse_cache=/tmp -odefault_acl=public-read -ononempty
+    mount_cloud_storage
 
     recovery_dir="$BACKUP/recover-$NOW"
     mkdir -p $recovery_dir
-    latest_dump_path=`find "/mnt/s3b/data" -type f|sort -r|head -n1`
+    latest_dump_path=`find "$MOUNT/data" -type f|sort -r|head -n1`
     dump_file=`basename $latest_dump_path .tar.gz`
 
     tar -xzvf $latest_dump_path -C $recovery_dir
