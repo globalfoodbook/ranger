@@ -9,7 +9,7 @@ RUN locale-gen
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV S3_BUCKET gfb-assets
-ENV GCS_BUCKET gfb-assets.globalfoodbook.net
+ENV GCS_BUCKET assets.globalfoodbook.net
 ENV GCS_AUTH_FILE /etc/gcs-auth.txt
 ENV MOUNT /mnt/cloud-storage-bucket
 ENV BACKUP /dumps
@@ -59,6 +59,8 @@ ADD templates/fxn.sh /usr/bin/fxn.sh
 RUN chmod +x /root/backup-db.sh
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/fxn.sh
+
+RUN echo "$(cat /root/.bashrc)\nsource /usr/bin/fxn.sh\nalias mcs=mount_cloud_storage\n" > /root/.bashrc;
 
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/usr/bin/entrypoint.sh"]
