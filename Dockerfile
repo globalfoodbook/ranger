@@ -4,6 +4,20 @@ FROM ubuntu:trusty
 
 MAINTAINER Ikenna N. Okpala <me@ikennaokpala.com>
 
+ARG BUILD_DATE
+ARG VCS_REF
+# i.e
+# BUILD_DATE `date -u +"%Y-%m-%dT%H:%M:%SZ"`
+# VCS_REF `git rev-parse --short HEAD`
+LABEL org.label-schema.build-date=$BUILD_DATE \
+       org.label-schema.docker.dockerfile="/Dockerfile" \
+       org.label-schema.license="GNU GENERAL PUBLIC LICENSE" \
+       org.label-schema.name="Ranger docker container (gfb)" \
+       org.label-schema.url="http://globalfoodbook.com/" \
+       org.label-schema.vcs-ref=$VCS_REF \
+       org.label-schema.vcs-type="Git" \
+       org.label-schema.vcs-url="https://github.com/globalfoodbook/ranger.git"
+
 RUN locale-gen
 
 ENV DEBIAN_FRONTEND noninteractive
